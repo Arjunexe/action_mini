@@ -1,0 +1,19 @@
+# Godot 4+ specific ignores
+.godot/
+/android/build/
+/ios/build/
+
+# Import cache
+.import/
+
+# Export templates and builds
+*.pck
+*.exe
+*.apk
+*.aab
+/build/
+
+# OS/Editor specific
+.DS_Store
+Thumbs.db
+*.tmp

@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dntrpmv8oqeqv"]
+
+[ext_resource type="PackedScene" uid="uid://cq06y3ekv20s" path="res://scene/build/treeSecond.tscn" id="1_ixf2x"]
+
+[node name="meshLibra" type="Node3D" unique_id=1448049040]
+
+[node name="StaticBody3D" parent="." unique_id=1413988432 instance=ExtResource("1_ixf2x")]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0.324453, 0, 0.5824125)

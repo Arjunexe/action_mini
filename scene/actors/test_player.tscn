@@ -1,0 +1,76 @@
+[gd_scene format=3 uid="uid://xu7dqs2wjxsh"]
+
+[ext_resource type="Script" uid="uid://wnxpu8mn6rwa" path="res://scene/actors/test_player.gd" id="1_maybv"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_maybv"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_elhx4"]
+sky_material = SubResource("ProceduralSkyMaterial_maybv")
+
+[sub_resource type="Environment" id="Environment_sura8"]
+background_mode = 2
+sky = SubResource("Sky_elhx4")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_maybv"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cmg1b"]
+albedo_color = Color(1, 1, 0, 1)
+
+[sub_resource type="TorusMesh" id="TorusMesh_cmg1b"]
+material = SubResource("StandardMaterial3D_cmg1b")
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_cmg1b"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_maybv"]
+radius = 0.59375
+height = 2.0419922
+
+[node name="worldTest" type="Node3D" unique_id=1004898099]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=129049119]
+environment = SubResource("Environment_sura8")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=708912142]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=813326816]
+use_collision = true
+size = Vector3(43, 1, 89)
+material = SubResource("StandardMaterial3D_maybv")
+
+[node name="testPlayer" type="CharacterBody3D" parent="." unique_id=1132485742]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+script = ExtResource("1_maybv")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="testPlayer" unique_id=1147023805]
+transform = Transform3D(0.007715917, -1.4479156e-08, 0.30963892, -0.33258808, 9.313226e-10, 0.0071835057, 0, -0.33039126, -1.3538389e-08, 0.0004910007, -0.023270965, -0.5326891)
+mesh = SubResource("TorusMesh_cmg1b")
+
+[node name="BodyMesh" type="MeshInstance3D" parent="testPlayer" unique_id=1515400977]
+mesh = SubResource("CapsuleMesh_cmg1b")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="testPlayer" unique_id=243456529]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.020996094, 0)
+shape = SubResource("CapsuleShape3D_maybv")
+
+[node name="CameraOrigin" type="Node3D" parent="testPlayer" unique_id=1890862974]
+transform = Transform3D(1.315, 0, 0, 0, 1.315, 0, 0, 0, 2.1094744, 0, 0.50738525, 0.14938712)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="testPlayer/CameraOrigin" unique_id=140403282]
+spring_length = 2.0
+margin = 0.5
+
+[node name="Camera3D" type="Camera3D" parent="testPlayer/CameraOrigin/SpringArm3D" unique_id=1146724396]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
+current = true
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="." unique_id=1586099333]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 2.5, 1.1818848, 10)
+use_collision = true
+size = Vector3(4, 0.45458984, 1)

@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://c0s2kd3f3snkg"]
+
+[ext_resource type="Script" uid="uid://bgbpc86u6wmed" path="res://addons/zylann.hterrain/hterrain.gd" id="1_jvnu7"]
+[ext_resource type="Script" uid="uid://c87ttdynaq1hy" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="3_wfhgn"]
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_vlxly"]
+cell_size = 0.5
+cell_height = 0.5
+
+[sub_resource type="Resource" id="Resource_q0gbg"]
+script = ExtResource("3_wfhgn")
+mode = 0
+textures = [[], []]
+
+[node name="testOfNavigation" type="Node3D" unique_id=771540243]
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=78750820]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.018016815, 0)
+navigation_mesh = SubResource("NavigationMesh_vlxly")
+
+[node name="HTerrain" type="Node3D" parent="NavigationRegion3D" unique_id=1690082923]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.018016815, 0)
+script = ExtResource("1_jvnu7")
+centered = true
+_terrain_data = null
+chunk_size = 32
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4Lite"
+custom_shader = null
+custom_globalmap_shader = null
+texture_set = SubResource("Resource_q0gbg")
+render_layers = 1
+cast_shadow = 1
+shader_params/u_ground_uv_scale = 20
+shader_params/u_depth_blending = true
+shader_params/u_triplanar = null
+shader_params/u_tile_reduction = null
+metadata/_custom_type_script = "uid://bgbpc86u6wmed"

@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://fxmju1qb6pdm"]
+
+[ext_resource type="PackedScene" uid="uid://menlldh2ll3o" path="res://scene/build/build.tscn" id="1_reb10"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_reb10"]
+
+[node name="Node3D" type="Node3D" unique_id=1944067496]
+
+[node name="Build" parent="." unique_id=57507632 instance=ExtResource("1_reb10")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06005633, 0, 1.180226)
+material_override = SubResource("StandardMaterial3D_reb10")
+
+[node name="LOD0_concrete_house_004" parent="Build" index="0" unique_id=1009451780]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0)
+
+[editable path="Build"]
+[editable path="Build/LOD0_concrete_house_004"]
