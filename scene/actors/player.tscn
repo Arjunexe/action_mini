@@ -786,6 +786,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.82769775, 0)
 shape = SubResource("CapsuleShape3D_hjaqi")
 
 [node name="MainCharacter" parent="." unique_id=2050806156 instance=ExtResource("1_8b6wf")]
+transform = Transform3D(-0.99477077, 0, -0.10213281, 0, 1, 0, 0.10213281, 0, -0.99477077, 0, 0, 0)
 
 [node name="Skeleton3D" parent="MainCharacter" index="0" unique_id=22830289]
 bones/0/position = Vector3(-0.0022573618, 0.9890439, -0.0012045037)
@@ -852,14 +853,13 @@ light_energy = 16.0
 spot_range = 9.695078
 
 [node name="CameraPivot3d" type="Node3D" parent="." unique_id=771250901]
-transform = Transform3D(1, 0, 0, 0, 1.0202258, -0.045510657, 0, 0.025486114, 1.8218215, -0.3117199, 1.3118496, -0.119148254)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.312, 0)
 
 [node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot3d" unique_id=1570701994]
-spring_length = -0.87
-margin = 1.0
+spring_length = 2.0
+margin = 0.5
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot3d/SpringArm3D" unique_id=2035555695]
-transform = Transform3D(-0.99996054, 1.4551341e-11, 0.008883619, 2.910383e-11, 0.99999994, 0, -0.008883618, 0, -0.9999605, 0, 0, 0)
 current = true
 
 [node name="RayCast3D" type="RayCast3D" parent="CameraPivot3d/SpringArm3D/Camera3D" unique_id=2011540895]

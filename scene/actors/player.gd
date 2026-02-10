@@ -4,8 +4,8 @@ extends CharacterBody3D
 # EXPORTS - Tweak these values in the inspector
 # ============================================================================
 @export_group("Movement")
-@export var move_speed: float = 2.5
-@export var sprint_multiplier: float = 1.5
+@export var move_speed: float = 2.0
+@export var sprint_multiplier: float = 2
 @export var jump_force: float = 4.5
 @export var rotation_speed: float = 12.0
 
@@ -72,7 +72,7 @@ func _handle_camera_rotation(event: InputEventMouseMotion) -> void:
 	camera_pivot.rotate_y(-event.relative.x * mouse_sensitivity)
 	
 	# Vertical rotation (pitch) with clamping
-	spring_arm.rotate_x(event.relative.y * mouse_sensitivity)
+	spring_arm.rotate_x(-event.relative.y * mouse_sensitivity)
 	spring_arm.rotation.x = clamp(
 		spring_arm.rotation.x,
 		deg_to_rad(min_pitch),
@@ -121,7 +121,7 @@ func _handle_jump() -> void:
 
 func _handle_movement(delta: float) -> void:
 	# Get input direction
-	var input_dir := Input.get_vector("move_right", "move_left", "move_backward", "move_forward")
+	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	
 	# Convert to world space direction (relative to camera)
 	var direction: Vector3 = (camera_pivot.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()

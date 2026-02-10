@@ -1,40 +1,35 @@
 [gd_scene format=3 uid="uid://c0s2kd3f3snkg"]
 
-[ext_resource type="Script" uid="uid://bgbpc86u6wmed" path="res://addons/zylann.hterrain/hterrain.gd" id="1_jvnu7"]
-[ext_resource type="Script" uid="uid://c87ttdynaq1hy" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="3_wfhgn"]
+[ext_resource type="PackedScene" uid="uid://dfu2jmsy7b7g8" path="res://scene/actors/player.tscn" id="3_n64uo"]
+[ext_resource type="PackedScene" uid="uid://d0je6pki7u878" path="res://scene/actors/monster.tscn" id="4_f5d1n"]
 
-[sub_resource type="NavigationMesh" id="NavigationMesh_vlxly"]
-cell_size = 0.5
-cell_height = 0.5
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_n64uo"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
 
-[sub_resource type="Resource" id="Resource_q0gbg"]
-script = ExtResource("3_wfhgn")
-mode = 0
-textures = [[], []]
+[sub_resource type="Sky" id="Sky_f5d1n"]
+sky_material = SubResource("ProceduralSkyMaterial_n64uo")
+
+[sub_resource type="Environment" id="Environment_la0q5"]
+background_mode = 2
+sky = SubResource("Sky_f5d1n")
+tonemap_mode = 2
+glow_enabled = true
 
 [node name="testOfNavigation" type="Node3D" unique_id=771540243]
 
-[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=78750820]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.018016815, 0)
-navigation_mesh = SubResource("NavigationMesh_vlxly")
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=142021973]
+environment = SubResource("Environment_la0q5")
 
-[node name="HTerrain" type="Node3D" parent="NavigationRegion3D" unique_id=1690082923]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.018016815, 0)
-script = ExtResource("1_jvnu7")
-centered = true
-_terrain_data = null
-chunk_size = 32
-collision_enabled = true
-collision_layer = 1
-collision_mask = 1
-shader_type = "Classic4Lite"
-custom_shader = null
-custom_globalmap_shader = null
-texture_set = SubResource("Resource_q0gbg")
-render_layers = 1
-cast_shadow = 1
-shader_params/u_ground_uv_scale = 20
-shader_params/u_depth_blending = true
-shader_params/u_triplanar = null
-shader_params/u_tile_reduction = null
-metadata/_custom_type_script = "uid://bgbpc86u6wmed"
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1133591949]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Player" parent="." unique_id=1574955470 instance=ExtResource("3_n64uo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35.395004, 1.3672616, -80.98536)
+
+[node name="Monster" parent="." unique_id=494537604 instance=ExtResource("4_f5d1n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -41.877, 1.4740865, -79.775246)
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=143644078]
+transform = Transform3D(-0.62068045, -0.56578434, 0.54281104, 0.03854702, 0.6694482, 0.741858, -0.78311557, 0.48138046, -0.3937041, -38.190334, 12.486744, -79.775246)
