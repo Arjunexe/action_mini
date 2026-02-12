@@ -64,6 +64,10 @@ enabled=PackedStringArray("res://addons/proton_scatter/plugin.cfg", "res://addon
 
 import/blender/enabled=false
 
+[global_group]
+
+player=""
+
 [input]
 
 move_forward={

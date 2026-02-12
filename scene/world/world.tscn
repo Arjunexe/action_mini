@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://2yyfy0u3idx5"]
 
-[ext_resource type="PackedScene" uid="uid://dfu2jmsy7b7g8" path="res://scene/actors/player.tscn" id="1_mcmpp"]
+[ext_resource type="PackedScene" uid="uid://dfu2jmsy7b7g8" path="res://scene/actors/player/player.tscn" id="1_mcmpp"]
 [ext_resource type="Script" uid="uid://bbb0gwlf044vw" path="res://addons/proton_scatter/src/scatter.gd" id="10_g0i7g"]
 [ext_resource type="Script" uid="uid://cfh04a38np81" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="11_ckxcn"]
 [ext_resource type="Script" uid="uid://cbcxo1vaas45d" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="12_t6jhs"]
@@ -15,7 +15,7 @@
 [ext_resource type="Script" uid="uid://ro0ckqfqq0lu" path="res://scene/build/door.gd" id="19_ckxcn"]
 [ext_resource type="PackedScene" uid="uid://0c6lpia3x0n3" path="res://assets/build/cabinN/cabinWithDoor.glb" id="19_g0i7g"]
 [ext_resource type="Script" uid="uid://c3xthji543yoi" path="res://addons/proton_scatter/src/shapes/box_shape.gd" id="20_ckxcn"]
-[ext_resource type="PackedScene" uid="uid://d0je6pki7u878" path="res://scene/actors/monster.tscn" id="20_t6jhs"]
+[ext_resource type="PackedScene" uid="uid://bedfhp7nuwwaa" path="res://scene/actors/monster/monster.tscn" id="20_t6jhs"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4akyk"]
 sky_top_color = Color(0.17254013, 0.22582117, 0.30702594, 1)
@@ -40,33 +40,34 @@ emission_enabled = true
 emission = Color(1, 1, 1, 1)
 emission_energy_multiplier = 16.0
 
-[sub_resource type="Resource" id="Resource_srnbc"]
+[sub_resource type="Resource" id="Resource_58eqr"]
 script = ExtResource("13_cm2xv")
 amount = 1000
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_4akyk"]
+[sub_resource type="Resource" id="Resource_srnbc"]
 script = ExtResource("14_6lidv")
 position = Vector3(0.15, 0.15, 0.15)
 scale = Vector3(5, 5, 5)
 reference_frame = 2
 
-[sub_resource type="Resource" id="Resource_g0i7g"]
+[sub_resource type="Resource" id="Resource_4akyk"]
 script = ExtResource("15_wc0en")
 offset_step = 0.2
 consecutive_step_multiplier = 0.75
+use_computeshader = false
 restrict_height = true
 
-[sub_resource type="Resource" id="Resource_ckxcn"]
+[sub_resource type="Resource" id="Resource_g0i7g"]
 script = ExtResource("16_b43sk")
 ray_length = 5.0
 ray_offset = 5.0
 remove_points_on_miss = false
 
-[sub_resource type="Resource" id="Resource_cm2xv"]
+[sub_resource type="Resource" id="Resource_ckxcn"]
 script = ExtResource("11_ckxcn")
-stack = Array[ExtResource("12_t6jhs")]([SubResource("Resource_srnbc"), SubResource("Resource_4akyk"), SubResource("Resource_g0i7g"), SubResource("Resource_ckxcn")])
+stack = Array[ExtResource("12_t6jhs")]([SubResource("Resource_58eqr"), SubResource("Resource_srnbc"), SubResource("Resource_4akyk"), SubResource("Resource_g0i7g")])
 
 [sub_resource type="Resource" id="Resource_g8bsm"]
 script = ExtResource("19_6hm40")
@@ -156,7 +157,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6216278, -0.2662506, -118.8
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.202295, 6.627143, -21.224537)
 visible = false
 script = ExtResource("10_g0i7g")
-modifier_stack = SubResource("Resource_cm2xv")
+modifier_stack = SubResource("Resource_ckxcn")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(15.03, 15, 15)
 metadata/_custom_type_script = "uid://bbb0gwlf044vw"
@@ -210,13 +211,7 @@ shape = SubResource("BoxShape3D_g0i7g")
 [node name="Monster" parent="." unique_id=494537604 instance=ExtResource("20_t6jhs")]
 transform = Transform3D(-0.88388807, 0, -0.46769845, 0, 1, 0, 0.46769845, 0, -0.88388807, 12.489126, -0.16148782, -127.704834)
 
-[node name="CollisionShape3D" parent="Monster" index="0" unique_id=677366057]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.01629448, 1.3443797, 0.14441681)
-
-[node name="Monster2" parent="." unique_id=1754318199 instance=ExtResource("20_t6jhs")]
-transform = Transform3D(-0.88388807, 0, -0.46769845, 0, 1, 0, 0.46769845, 0, -0.88388807, 40.27221, -0.16148782, -107.605835)
-
-[node name="CollisionShape3D" parent="Monster2" index="0" unique_id=677366057]
+[node name="CollisionShape3D" parent="Monster" index="1" unique_id=677366057]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.01629448, 1.3443797, 0.14441681)
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=1555416232 groups=["nav_source"]]
@@ -239,5 +234,3 @@ shadow_enabled = true
 [editable path="cabinWithDoor"]
 [editable path="Monster"]
 [editable path="Monster/monster"]
-[editable path="Monster2"]
-[editable path="Monster2/monster"]

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c0s2kd3f3snkg"]
 
-[ext_resource type="PackedScene" uid="uid://dfu2jmsy7b7g8" path="res://scene/actors/player.tscn" id="3_n64uo"]
-[ext_resource type="PackedScene" uid="uid://d0je6pki7u878" path="res://scene/actors/monster.tscn" id="4_f5d1n"]
+[ext_resource type="PackedScene" path="res://scene/actors/player/player.tscn" id="3_n64uo"]
+[ext_resource type="PackedScene" uid="uid://d0je6pki7u878" path="res://scene/actors/monster/monster.tscn" id="4_f5d1n"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_n64uo"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)

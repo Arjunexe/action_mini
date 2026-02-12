@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dfu2jmsy7b7g8"]
 
 [ext_resource type="PackedScene" uid="uid://ukka4yo3k8ua" path="res://assets/models/MainCharacter/MainCharacter.fbx" id="1_8b6wf"]
-[ext_resource type="Script" uid="uid://ok7go6qxkk7k" path="res://scene/actors/player.gd" id="1_s6lp3"]
+[ext_resource type="Script" uid="uid://ok7go6qxkk7k" path="res://scene/actors/player/player.gd" id="1_s6lp3"]
 [ext_resource type="Animation" uid="uid://d0soc7jfsvqlw" path="res://animations/idel.res" id="3_7q8qc"]
 [ext_resource type="Animation" uid="uid://dqepj2lno62p1" path="res://animations/walking.res" id="3_gk0xs"]
 [ext_resource type="Animation" uid="uid://cu551uotsgtsk" path="res://animations/combatIdle.res" id="3_vgwja"]
@@ -12,7 +12,8 @@
 [ext_resource type="Animation" uid="uid://pp315u61msi6" path="res://animations/slowRun.res" id="9_m21xu"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hjaqi"]
-height = 1.6932373
+radius = 0.22070313
+height = 1.6415405
 
 [sub_resource type="Animation" id="Animation_dl77r"]
 resource_name = "jumpPackFall"
@@ -778,11 +779,11 @@ _data = {
 &"walking": ExtResource("3_gk0xs")
 }
 
-[node name="Player" type="CharacterBody3D" unique_id=1574955470]
+[node name="Player" type="CharacterBody3D" unique_id=1574955470 groups=["player"]]
 script = ExtResource("1_s6lp3")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1869276105]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.82769775, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.02915296, 0.80184937, -0.018029273)
 shape = SubResource("CapsuleShape3D_hjaqi")
 
 [node name="MainCharacter" parent="." unique_id=2050806156 instance=ExtResource("1_8b6wf")]

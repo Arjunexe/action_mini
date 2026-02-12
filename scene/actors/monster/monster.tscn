@@ -1,13 +1,16 @@
-[gd_scene format=3 uid="uid://d0je6pki7u878"]
+[gd_scene format=3 uid="uid://bedfhp7nuwwaa"]
 
-[ext_resource type="Script" uid="uid://d24g0o7sjxdof" path="res://scene/actors/monster.gd" id="1_q5x8i"]
+[ext_resource type="Script" uid="uid://d24g0o7sjxdof" path="res://scene/actors/monster/monster.gd" id="1_q5x8i"]
 [ext_resource type="PackedScene" uid="uid://i283fcl214i6" path="res://assets/models/MainCharacter/monster.fbx" id="2_q5x8i"]
 [ext_resource type="Animation" uid="uid://8i0737lhtu12" path="res://animations/mutantWalking.res" id="3_ox1q8"]
 [ext_resource type="Animation" uid="uid://pp315u61msi6" path="res://animations/slowRun.res" id="3_utwfm"]
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_22xf5"]
+radius = 30.0
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_q5x8i"]
-radius = 0.5253906
-height = 2.3657837
+radius = 0.36865234
+height = 1.8987122
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ox1q8"]
 _data = {
@@ -18,8 +21,13 @@ _data = {
 [node name="Monster" type="CharacterBody3D" unique_id=494537604]
 script = ExtResource("1_q5x8i")
 
+[node name="DetectionArea" type="Area3D" parent="." unique_id=1683028985]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=246615337]
+shape = SubResource("SphereShape3D_22xf5")
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=677366057]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.016296446, 1.127911, 0.14442539)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.016296446, 0.8943752, -0.044875145)
 shape = SubResource("CapsuleShape3D_q5x8i")
 
 [node name="monster" parent="." unique_id=1357460165 instance=ExtResource("2_q5x8i")]
@@ -78,5 +86,12 @@ bones/59/rotation = Quaternion(0.25329858, 0.085913904, 0.021594035, 0.9633236)
 libraries/ = SubResource("AnimationLibrary_ox1q8")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=1227616958]
+
+[node name="LOSRay" type="RayCast3D" parent="." unique_id=1759751524]
+enabled = false
+target_position = Vector3(0, 1.5, 0)
+
+[node name="LOSCheckTimer" type="Timer" parent="." unique_id=238432863]
+wait_time = 0.3
 
 [editable path="monster"]
