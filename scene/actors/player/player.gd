@@ -6,8 +6,9 @@ extends CharacterBody3D
 @export_group("Movement")
 @export var move_speed: float = 2.0
 @export var sprint_multiplier: float = 2
-@export var jump_force: float = 4.5
+@export var jump_force: float = 2.8
 @export var rotation_speed: float = 12.0
+@export var jump_delay: float = 0.5  # ← Delay before applying jump force
 
 @export_group("Camera")
 @export var mouse_sensitivity: float = 0.003
@@ -31,16 +32,20 @@ extends CharacterBody3D
 # ============================================================================
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var combat_moves: Array[String] = ["kick", "punch"]
+var has_left_ground: bool = false
 
 # State tracking
 var is_attacking: bool = false
 var combat_exit_time: float = 0.0
 var current_animation: String = ""
+var jump_timer: float = -1.0
+var is_jumping: bool = false  # ← NEW: Track if we're in a jump
 
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
 func _ready() -> void:
+
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	if not interaction_ray:
 		print("ERROR: RayCast3D node is missing! Please add it to the Camera.")
@@ -60,6 +65,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event.is_action_pressed("interact"):
 		_try_interact()
+	
 	# Combat inputs (only when not already attacking)
 	if not is_attacking:
 		if event.is_action_pressed("kick"):
@@ -86,6 +92,7 @@ func _do_combat(anim_name: String) -> void:
 	is_attacking = true
 	combat_exit_time = 0.0  # Reset stance timer
 	_play_anim(anim_name)
+
 func _try_interact() -> void:
 	if not interaction_ray.is_colliding():
 		return
@@ -104,7 +111,7 @@ func _on_animation_finished(anim_name: String) -> void:
 # ============================================================================
 func _physics_process(delta: float) -> void:
 	_apply_gravity(delta)
-	_handle_jump()
+	_handle_jump(delta)  # ← Now takes delta
 	_handle_movement(delta)
 	_update_animations()
 	
@@ -114,10 +121,25 @@ func _apply_gravity(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 
-func _handle_jump() -> void:
-	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = jump_force
+func _handle_jump(_delta: float) -> void:
+	# Start jump
+	if Input.is_action_just_pressed("jump") and is_on_floor() and not is_jumping:
 		_play_anim("jumpPack", 0.0)
+		is_jumping = true
+		has_left_ground = false  # Reset flag
+	
+	# Track if we left the ground
+	if is_jumping and not is_on_floor():
+		has_left_ground = true
+	
+	# Only reset after we've been airborne AND landed
+	if is_jumping and is_on_floor() and has_left_ground:
+		is_jumping = false
+
+func apply_jump_force() -> void:
+
+	print("🚀 JUMP FORCE APPLIED!")  # ← Add this debug line
+	velocity.y = jump_force
 
 func _handle_movement(delta: float) -> void:
 	# Get input direction
@@ -155,7 +177,11 @@ func _update_animations() -> void:
 	if is_attacking:
 		return
 	
-	# Priority 1: Airborne
+	# Don't interrupt jump (windup OR airborne)
+	if jump_timer > 0 or is_jumping:  # ← NEW: Don't touch animation during entire jump
+		return
+	
+	# Priority 1: Airborne (shouldn't reach here during jump anymore)
 	if not is_on_floor():
 		_play_anim("jumpPack")
 		return

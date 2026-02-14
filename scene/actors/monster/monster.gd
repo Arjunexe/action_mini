@@ -19,6 +19,7 @@ extends CharacterBody3D
 
 enum State { WANDER, CHASE }
 
+const GRAVITY: float = 9.8
 var state: State = State.WANDER
 var player: CharacterBody3D
 var player_detected: bool = false
@@ -30,10 +31,10 @@ func _ready() -> void:
 	# 1. FORCE Player cache (error if missing)
 	player = get_tree().get_first_node_in_group("player") as CharacterBody3D
 	if not player:
-		push_error("🚫 FIX: Player → Inspector → GROUPS → Add 'player'")
-		print("💡 Open Player scene → Inspector (right) → GROUPS button → + → 'player'")
+		push_error("FIX: Player → Inspector → GROUPS → Add 'player'")
+		print("Open Player scene → Inspector (right) → GROUPS button → + → 'player'")
 		return
-	print("✅1 PLAYER FOUND: ", player.name)
+	print("1 PLAYER FOUND: ", player.name)
 	
 	# 2. FORCE Ray (ignore self, mask player)
 	los_ray.add_exception(self)
@@ -43,21 +44,21 @@ func _ready() -> void:
 	los_timer.wait_time = los_check_interval
 	los_timer.autostart = false
 	los_timer.one_shot = false
-	print("✅2 TIMER: ", los_timer.wait_time, "s interval")
+	print("2 TIMER: ", los_timer.wait_time, "s interval")
 	
 	# 4. FORCE Area3D (monitoring ON, mask Layer 1)
 	detection_area.monitoring = true
 	detection_area.monitorable = false
 	detection_area.collision_mask = 1
-	print("✅3 AREA monitoring=TRUE | mask=1 (Layer1)")
+	print("3 AREA monitoring=TRUE | mask=1 (Layer1)")
 	
 	# 5. FORCE Sphere radius (overrides Inspector)
 	var shape_node: CollisionShape3D = detection_area.get_node("CollisionShape3D") as CollisionShape3D
 	if shape_node and shape_node.shape is SphereShape3D:
 		(shape_node.shape as SphereShape3D).radius = detection_radius
-		print("✅4 SPHERE radius=%.1fm" % detection_radius)
+		print("4 SPHERE radius=%.1fm" % detection_radius)
 	else:
-		push_error("🚫 CollisionShape3D missing under DetectionArea!")
+		push_error("CollisionShape3D missing under DetectionArea!")
 	
 	# 6. Connect signals (safe, prints if fail)
 	if not detection_area.body_entered.is_connected(_on_body_entered):
@@ -66,7 +67,8 @@ func _ready() -> void:
 		detection_area.body_exited.connect(_on_body_exited)
 	if not los_timer.timeout.is_connected(_on_los_check):
 		los_timer.timeout.connect(_on_los_check)
-	print("✅5 SIGNALS connected")
+	print("5 SIGNALS connected")
+
 
 
 func _physics_process(delta: float) -> void:
@@ -80,7 +82,7 @@ func _physics_process(delta: float) -> void:
 			player_detected,
 			has_los,
 			"CHASE" if state == State.CHASE else "WANDER",
-			global_position.distance_to(player.global_position) if player else 999
+			global_position.distance_to(player.global_position) if player else 999.0
 		])
 	
 	# State tick (cheap)
@@ -101,11 +103,10 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	_update_animation_and_rotation()
 
-
 func _handle_state_transitions(delta: float) -> void:
 	if state == State.WANDER:
 		if player_detected:
-			print("🧠 → CHASE (proximity)")
+			print("→ CHASE (proximity)")
 			state = State.CHASE
 			los_lost_time = 0.0
 			los_timer.start()
@@ -113,23 +114,23 @@ func _handle_state_transitions(delta: float) -> void:
 		if not player_detected:
 			los_lost_time += delta
 			if los_lost_time > chase_giveup_time:
-				print("🧠 → WANDER (lost)")
+				print("→ WANDER (lost)")
 				state = State.WANDER
 				los_timer.stop()
 
 
 func _on_body_entered(body: Node3D) -> void:
-	print("🎉 ENTERED: ", body.name if body else "null")
+	print("ENTERED: ", body.name if body else "null")
 	if body == player:
 		player_detected = true
 		print("👀 PLAYER DETECTED! Timer START")
 
 
 func _on_body_exited(body: Node3D) -> void:
-	print("🚪 EXITED: ", body.name if body else "null")
+	print("EXITED: ", body.name if body else "null")
 	if body == player:
 		player_detected = false
-		print("😴 LOST PLAYER")
+		print("LOST PLAYER")
 
 
 func _on_los_check() -> void:
@@ -156,14 +157,18 @@ func _on_los_check() -> void:
 	
 	print("🔍 LOS | Dist:%.1f | Hit:%s | Visible:%s" % [dist, collider_name, has_los])
 
-
 func _update_animation_and_rotation() -> void:
-	if velocity.length() > 0.1:
+	# Only rotate if we are actually moving
+	var horizontal_velocity: Vector3 = velocity
+	horizontal_velocity.y = 0 # Ignore falling speed for rotation
+	
+	if horizontal_velocity.length() > 0.1:
 		if anim_player.has_animation("mutantWalking"):
 			anim_player.play("mutantWalking")
-		var target: Vector3 = global_position + velocity
-		target.y = global_position.y
-		look_at(target, Vector3.UP)
+		
+		# Look at where we are going + current position
+		var target_look: Vector3 = global_position + horizontal_velocity
+		look_at(target_look, Vector3.UP)
 	else:
 		anim_player.stop()
 
