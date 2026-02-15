@@ -5,7 +5,7 @@ extends CharacterBody3D
 @export var wander_radius: float = 10.0
 
 @export_group("Chase")
-@export var chase_speed: float = 4.5
+@export var chase_speed: float = 3.0
 @export var detection_radius: float = 30.0
 @export var sight_range: float = 25.0
 @export var chase_giveup_time: float = 3.0
@@ -26,7 +26,9 @@ var player_detected: bool = false
 var has_los: bool = false
 var los_lost_time: float = 0.0
 var has_roared: bool = false
-var wander_target: Vector3
+var wander_direction: Vector3 = Vector3.ZERO
+var wander_change_timer: float = 0.0
+var _last_pos: Vector3 = Vector3.ZERO
 
 
 func _ready() -> void:
@@ -73,8 +75,8 @@ func _ready() -> void:
 		anim_player.animation_finished.connect(_on_animation_finished)
 	print("5 SIGNALS connected")
 	
-	# 7. Set initial wander target
-	_set_random_target()
+	# 7. Pick initial wander direction
+	_pick_wander_direction()
 
 
 func _physics_process(delta: float) -> void:
@@ -121,38 +123,33 @@ func _physics_process(delta: float) -> void:
 	var speed: float
 	
 	if state == State.CHASE:
-		# During chase: try nav, fallback to direct movement if nav fails
-		nav_agent.target_position = player.global_position
-		var next: Vector3 = nav_agent.get_next_path_position()
-		direction = (next - global_position)
-		direction.y = 0
-		if direction.length() < 0.1:
-			# Nav failed — move directly toward player
-			direction = (player.global_position - global_position)
-			direction.y = 0
-		direction = direction.normalized()
+		# During chase: move directly toward player in 3D (including climbing hills)
+		direction = (player.global_position - global_position).normalized()
 		speed = chase_speed
 	else:
-		# Wander: try nav, fallback to direct movement
-		var dist_to_target: float = global_position.distance_to(wander_target)
-		if dist_to_target < 1.5 or nav_agent.is_navigation_finished():
-			_set_random_target()
-		var next: Vector3 = nav_agent.get_next_path_position()
-		direction = (next - global_position)
-		direction.y = 0
-		if direction.length() < 0.1:
-			# Nav failed — walk directly toward wander target
-			direction = (wander_target - global_position)
-			direction.y = 0
-		if direction.length() < 0.1:
-			# Already at target, pick new one next frame
-			move_and_slide()
-			return
-		direction = direction.normalized()
+		# Wander: simple timer-based random direction (horizontal only)
+		wander_change_timer -= delta
+		if wander_change_timer <= 0:
+			_pick_wander_direction()
+		direction = wander_direction
 		speed = movement_speed
 	
 	velocity.x = direction.x * speed
 	velocity.z = direction.z * speed
+	if state == State.CHASE:
+		velocity.y = direction.y * speed # Climb toward player
+	
+	# Slope climbing: if we were stuck last frame, hop up
+	var horizontal_moved: float = Vector2(global_position.x - _last_pos.x, global_position.z - _last_pos.z).length()
+	if horizontal_moved < 0.01 and is_on_floor() and (velocity.x != 0.0 or velocity.z != 0.0):
+		velocity.y = 5.0
+		floor_snap_length = 0.0
+		if state == State.WANDER:
+			_pick_wander_direction()
+	else:
+		floor_snap_length = 0.1
+	
+	_last_pos = global_position
 	move_and_slide()
 	_update_animation_and_rotation()
 
@@ -221,7 +218,7 @@ func _on_animation_finished(anim_name: String) -> void:
 	elif anim_name == "confused" and state == State.CONFUSED:
 		print("→ WANDER (confused finished)")
 		state = State.WANDER
-		_set_random_target() # Pick fresh target, don't walk toward stale player position
+		_pick_wander_direction() # Pick fresh direction for wander
 
 
 func _on_los_check() -> void:
@@ -271,7 +268,6 @@ func _update_animation_and_rotation() -> void:
 			anim_player.stop()
 
 
-func _set_random_target() -> void:
-	var dir: Vector3 = Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized()
-	wander_target = global_position + dir * wander_radius
-	nav_agent.target_position = wander_target
+func _pick_wander_direction() -> void:
+	wander_direction = Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized()
+	wander_change_timer = randf_range(3.0, 5.0)
