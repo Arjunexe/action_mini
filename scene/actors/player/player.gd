@@ -5,10 +5,10 @@ extends CharacterBody3D
 # ============================================================================
 @export_group("Movement")
 @export var move_speed: float = 2.0
-@export var sprint_multiplier: float = 2
-@export var jump_force: float = 2.8
+@export var sprint_multiplier: float = 2.2
+@export var jump_force: float = 2.5
 @export var rotation_speed: float = 12.0
-@export var jump_delay: float = 0.5  # ← Delay before applying jump force
+@export var jump_delay: float = 0.5 # ← Delay before applying jump force
 
 @export_group("Camera")
 @export var mouse_sensitivity: float = 0.003
@@ -39,18 +39,17 @@ var is_attacking: bool = false
 var combat_exit_time: float = 0.0
 var current_animation: String = ""
 var jump_timer: float = -1.0
-var is_jumping: bool = false  # ← NEW: Track if we're in a jump
+var is_jumping: bool = false # ← NEW: Track if we're in a jump
 
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
 func _ready() -> void:
-
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	if not interaction_ray:
 		print("ERROR: RayCast3D node is missing! Please add it to the Camera.")
 		return # Stop here if missing
-	interaction_ray.add_exception(self)
+	interaction_ray.add_exception(self )
 	# Connect animation finished signal
 	if animation:
 		animation.animation_finished.connect(_on_animation_finished)
@@ -90,7 +89,7 @@ func _handle_camera_rotation(event: InputEventMouseMotion) -> void:
 # ============================================================================
 func _do_combat(anim_name: String) -> void:
 	is_attacking = true
-	combat_exit_time = 0.0  # Reset stance timer
+	combat_exit_time = 0.0 # Reset stance timer
 	_play_anim(anim_name)
 
 func _try_interact() -> void:
@@ -105,13 +104,20 @@ func _on_animation_finished(anim_name: String) -> void:
 		is_attacking = false
 		# Set cooldown timer (when to exit combat stance)
 		combat_exit_time = Time.get_ticks_msec() + (combat_cooldown_duration * 1000.0)
+	elif anim_name == "femaleRunJump" or anim_name == "jumpPack":
+		is_jumping = false
+		has_left_ground = false
+		current_animation = ""
+		# Snap quickly back to run if still sprinting
+		if anim_name == "femaleRunJump" and Input.is_action_pressed("sprint"):
+			_play_anim("femaleRun", 0.1)
 
 # ============================================================================
 # PHYSICS & MOVEMENT
 # ============================================================================
 func _physics_process(delta: float) -> void:
 	_apply_gravity(delta)
-	_handle_jump(delta)  # ← Now takes delta
+	_handle_jump(delta) # ← Now takes delta
 	_handle_movement(delta)
 	_update_animations()
 	
@@ -124,9 +130,12 @@ func _apply_gravity(delta: float) -> void:
 func _handle_jump(_delta: float) -> void:
 	# Start jump
 	if Input.is_action_just_pressed("jump") and is_on_floor() and not is_jumping:
-		_play_anim("jumpPack", 0.0)
+		if Input.is_action_pressed("sprint"):
+			_play_anim("femaleRunJump", 0.0)
+		else:
+			_play_anim("jumpPack", 0.0)
 		is_jumping = true
-		has_left_ground = false  # Reset flag
+		has_left_ground = false # Reset flag
 	
 	# Track if we left the ground
 	if is_jumping and not is_on_floor():
@@ -137,8 +146,7 @@ func _handle_jump(_delta: float) -> void:
 		is_jumping = false
 
 func apply_jump_force() -> void:
-
-	print("🚀 JUMP FORCE APPLIED!")  # ← Add this debug line
+	print("JUMP FORCE APPLIED!") # ← Add this debug line
 	velocity.y = jump_force
 
 func _handle_movement(delta: float) -> void:
@@ -178,7 +186,7 @@ func _update_animations() -> void:
 		return
 	
 	# Don't interrupt jump (windup OR airborne)
-	if jump_timer > 0 or is_jumping:  # ← NEW: Don't touch animation during entire jump
+	if jump_timer > 0 or is_jumping: # ← NEW: Don't touch animation during entire jump
 		return
 	
 	# Priority 1: Airborne (shouldn't reach here during jump anymore)
@@ -190,7 +198,7 @@ func _update_animations() -> void:
 	var horizontal_velocity := Vector2(velocity.x, velocity.z)
 	if horizontal_velocity.length() > 0.1:
 		if Input.is_action_pressed("sprint"):
-			_play_anim("slowRun")
+			_play_anim("femaleRun")
 		else:
 			_play_anim("walking")
 		return

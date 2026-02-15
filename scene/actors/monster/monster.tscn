@@ -2,17 +2,24 @@
 
 [ext_resource type="Script" uid="uid://d24g0o7sjxdof" path="res://scene/actors/monster/monster.gd" id="1_q5x8i"]
 [ext_resource type="PackedScene" uid="uid://i283fcl214i6" path="res://assets/models/MainCharacter/monster.fbx" id="2_q5x8i"]
+[ext_resource type="Animation" uid="uid://hswdllogjyly" path="res://animations/confused.res" id="3_bug3k"]
 [ext_resource type="Animation" uid="uid://8i0737lhtu12" path="res://animations/mutantWalking.res" id="3_ox1q8"]
 [ext_resource type="Animation" uid="uid://pp315u61msi6" path="res://animations/slowRun.res" id="3_utwfm"]
+[ext_resource type="Animation" uid="uid://b0adc82l5waf4" path="res://animations/mutantRoar.res" id="3_wj5yr"]
+[ext_resource type="Animation" uid="uid://c01o7mjdbykcx" path="res://animations/monsterRun.res" id="4_uqoaw"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_22xf5"]
+radius = 1.4145331
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_q5x8i"]
-radius = 0.36865234
-height = 1.843399
+radius = 0.34375
+height = 1.7664261
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ox1q8"]
 _data = {
+&"confused": ExtResource("3_bug3k"),
+&"monsterRun": ExtResource("4_uqoaw"),
+&"mutantRoar": ExtResource("3_wj5yr"),
 &"mutantWalking": ExtResource("3_ox1q8"),
 &"slowRun": ExtResource("3_utwfm")
 }
@@ -24,15 +31,16 @@ detection_radius = 10.0
 [node name="DetectionArea" type="Area3D" parent="." unique_id=1683028985]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=246615337]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8538208, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3854523, 0)
+visible = false
 shape = SubResource("SphereShape3D_22xf5")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=677366057]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.016296446, 0.92203176, -0.044875145)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.016, 1, -0.045)
 shape = SubResource("CapsuleShape3D_q5x8i")
 
 [node name="monster" parent="." unique_id=1357460165 instance=ExtResource("2_q5x8i")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.4396326, 0)
 
 [node name="Skeleton3D" parent="monster" index="0" unique_id=1154821705]
 bones/0/position = Vector3(0.028531874, 0.9400236, -0.00661324)
@@ -87,6 +95,9 @@ bones/59/rotation = Quaternion(0.25329858, 0.085913904, 0.021594035, 0.9633236)
 libraries/ = SubResource("AnimationLibrary_ox1q8")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=1227616958]
+path_desired_distance = 0.5
+target_desired_distance = 0.5
+debug_enabled = true
 
 [node name="LOSRay" type="RayCast3D" parent="." unique_id=1759751524]
 enabled = false

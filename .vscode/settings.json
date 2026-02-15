@@ -1,0 +1,15 @@
+{
+    "godotTools.editorPath.godot4": "/home/arjun/Documents/GameProjects/action-mini/scene/actors/monster/monster.gd",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/*.tscn": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/.godot": true, // Hides the entire .godot folder (cached imports, etc.)
+        "**/.import": true, // Hides all .import folders (imported assets)
+        "**/*.uid": true, // Hides all .uid files (Godot 4+ unique IDs)
+        "gdunit4_testadapter_vs": true // Hides that specific GDUnit4 file/folder (as in your example)
+    }
+}

@@ -1,11 +1,11 @@
 extends CharacterBody3D
 
 @export_group("Wander")
-@export var movement_speed: float = 1.3
+@export var movement_speed: float = 2.0
 @export var wander_radius: float = 10.0
 
 @export_group("Chase")
-@export var chase_speed: float = 2.5
+@export var chase_speed: float = 4.5
 @export var detection_radius: float = 30.0
 @export var sight_range: float = 25.0
 @export var chase_giveup_time: float = 3.0
@@ -17,7 +17,7 @@ extends CharacterBody3D
 @onready var los_ray: RayCast3D = $LOSRay
 @onready var los_timer: Timer = $LOSCheckTimer
 
-enum State { WANDER, CHASE }
+enum State {WANDER, ROAR, CHASE, CONFUSED}
 
 const GRAVITY: float = 9.8
 var state: State = State.WANDER
@@ -25,6 +25,8 @@ var player: CharacterBody3D
 var player_detected: bool = false
 var has_los: bool = false
 var los_lost_time: float = 0.0
+var has_roared: bool = false
+var wander_target: Vector3
 
 
 func _ready() -> void:
@@ -37,7 +39,7 @@ func _ready() -> void:
 	print("1 PLAYER FOUND: ", player.name)
 	
 	# 2. FORCE Ray (ignore self, mask player)
-	los_ray.add_exception(self)
+	los_ray.add_exception(self )
 	los_ray.collision_mask = 1
 	
 	# 3. FORCE Timer (no Inspector needed!)
@@ -67,8 +69,12 @@ func _ready() -> void:
 		detection_area.body_exited.connect(_on_body_exited)
 	if not los_timer.timeout.is_connected(_on_los_check):
 		los_timer.timeout.connect(_on_los_check)
+	if not anim_player.animation_finished.is_connected(_on_animation_finished):
+		anim_player.animation_finished.connect(_on_animation_finished)
 	print("5 SIGNALS connected")
-
+	
+	# 7. Set initial wander target
+	_set_random_target()
 
 
 func _physics_process(delta: float) -> void:
@@ -81,56 +87,141 @@ func _physics_process(delta: float) -> void:
 		print("DEBUG | Detected:%s | LOS:%s | State:%s | Dist:%.1f" % [
 			player_detected,
 			has_los,
-			"CHASE" if state == State.CHASE else "WANDER",
+			["WANDER", "ROAR", "CHASE", "CONFUSED"][state],
 			global_position.distance_to(player.global_position) if player else 999.0
 		])
 	
 	# State tick (cheap)
 	_handle_state_transitions(delta)
 	
-	# Chase target
-	if state == State.CHASE:
-		nav_agent.target_position = player.global_position
+	# Gravity
+	if not is_on_floor():
+		velocity.y -= GRAVITY * delta
 	
-	# Wander target guard
-	if nav_agent.is_navigation_finished() and state == State.WANDER:
-		_set_random_target()
+	# During ROAR: stop moving, face the player
+	if state == State.ROAR:
+		velocity.x = 0.0
+		velocity.z = 0.0
+		move_and_slide()
+		if player:
+			var look_pos: Vector3 = player.global_position
+			look_pos.y = global_position.y
+			look_at(look_pos, Vector3.UP)
+		return
+	
+	# During CONFUSED: stop moving, play animation
+	if state == State.CONFUSED:
+		velocity.x = 0.0
+		velocity.z = 0.0
+		move_and_slide()
+		return
 	
 	# Move
-	var curr: Vector3 = global_position
-	var next: Vector3 = nav_agent.get_next_path_position()
-	velocity = (next - curr).normalized() * (chase_speed if state == State.CHASE else movement_speed)
+	var direction: Vector3
+	var speed: float
+	
+	if state == State.CHASE:
+		# During chase: try nav, fallback to direct movement if nav fails
+		nav_agent.target_position = player.global_position
+		var next: Vector3 = nav_agent.get_next_path_position()
+		direction = (next - global_position)
+		direction.y = 0
+		if direction.length() < 0.1:
+			# Nav failed — move directly toward player
+			direction = (player.global_position - global_position)
+			direction.y = 0
+		direction = direction.normalized()
+		speed = chase_speed
+	else:
+		# Wander: try nav, fallback to direct movement
+		var dist_to_target: float = global_position.distance_to(wander_target)
+		if dist_to_target < 1.5 or nav_agent.is_navigation_finished():
+			_set_random_target()
+		var next: Vector3 = nav_agent.get_next_path_position()
+		direction = (next - global_position)
+		direction.y = 0
+		if direction.length() < 0.1:
+			# Nav failed — walk directly toward wander target
+			direction = (wander_target - global_position)
+			direction.y = 0
+		if direction.length() < 0.1:
+			# Already at target, pick new one next frame
+			move_and_slide()
+			return
+		direction = direction.normalized()
+		speed = movement_speed
+	
+	velocity.x = direction.x * speed
+	velocity.z = direction.z * speed
 	move_and_slide()
 	_update_animation_and_rotation()
 
 func _handle_state_transitions(delta: float) -> void:
 	if state == State.WANDER:
 		if player_detected:
-			print("→ CHASE (proximity)")
-			state = State.CHASE
-			los_lost_time = 0.0
-			los_timer.start()
+			if not has_roared and anim_player.has_animation("mutantRoar"):
+				print("→ ROAR (first time spotting player!)")
+				state = State.ROAR
+				anim_player.play("mutantRoar")
+				has_roared = true
+			else:
+				print("→ CHASE (already roared, skip to chase)")
+				state = State.CHASE
+				los_lost_time = 0.0
+				los_timer.start()
+	# ROAR state waits for animation_finished signal (see _on_animation_finished)
 	elif state == State.CHASE:
-		if not player_detected:
+		# Use distance-based tracking during chase (more reliable than Area3D)
+		var dist: float = global_position.distance_to(player.global_position)
+		if dist > sight_range:
 			los_lost_time += delta
 			if los_lost_time > chase_giveup_time:
-				print("→ WANDER (lost)")
-				state = State.WANDER
+				print("→ CONFUSED (lost player)")
+				state = State.CONFUSED
+				los_lost_time = 0.0
 				los_timer.stop()
+				if anim_player.has_animation("confused"):
+					anim_player.play("confused")
+				else:
+					push_warning("confused animation not found — skipping to WANDER")
+					state = State.WANDER
+		else:
+			los_lost_time = 0.0
+	elif state == State.CONFUSED:
+		if player_detected:
+			if not has_roared and anim_player.has_animation("mutantRoar"):
+				print("→ ROAR (spotted player while confused!)")
+				state = State.ROAR
+				anim_player.play("mutantRoar")
+				has_roared = true
+			else:
+				print("→ CHASE (re-spotted, skip roar)")
+				state = State.CHASE
+				los_lost_time = 0.0
+				los_timer.start()
 
 
 func _on_body_entered(body: Node3D) -> void:
-	print("ENTERED: ", body.name if body else "null")
 	if body == player:
 		player_detected = true
 		print("👀 PLAYER DETECTED! Timer START")
 
 
 func _on_body_exited(body: Node3D) -> void:
-	print("EXITED: ", body.name if body else "null")
 	if body == player:
 		player_detected = false
-		print("LOST PLAYER")
+
+
+func _on_animation_finished(anim_name: String) -> void:
+	if anim_name == "mutantRoar" and state == State.ROAR:
+		print("→ CHASE (roar finished)")
+		state = State.CHASE
+		los_lost_time = 0.0
+		los_timer.start()
+	elif anim_name == "confused" and state == State.CONFUSED:
+		print("→ WANDER (confused finished)")
+		state = State.WANDER
+		_set_random_target() # Pick fresh target, don't walk toward stale player position
 
 
 func _on_los_check() -> void:
@@ -163,21 +254,24 @@ func _update_animation_and_rotation() -> void:
 	horizontal_velocity.y = 0 # Ignore falling speed for rotation
 	
 	if horizontal_velocity.length() > 0.1:
-		if anim_player.has_animation("mutantWalking"):
-			anim_player.play("mutantWalking")
+		var target_anim: String = ""
+		if state == State.CHASE and anim_player.has_animation("monsterRun"):
+			target_anim = "monsterRun"
+		elif anim_player.has_animation("mutantWalking"):
+			target_anim = "mutantWalking"
+		
+		if target_anim != "" and anim_player.current_animation != target_anim:
+			anim_player.play(target_anim)
 		
 		# Look at where we are going + current position
 		var target_look: Vector3 = global_position + horizontal_velocity
 		look_at(target_look, Vector3.UP)
 	else:
-		anim_player.stop()
+		if anim_player.is_playing():
+			anim_player.stop()
 
 
 func _set_random_target() -> void:
 	var dir: Vector3 = Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized()
-	var pos: Vector3 = global_position + dir * wander_radius
-	var closest: Vector3 = NavigationServer3D.map_get_closest_point(
-		get_world_3d().get_navigation_map(), 
-		pos
-	)
-	nav_agent.target_position = closest
+	wander_target = global_position + dir * wander_radius
+	nav_agent.target_position = wander_target
