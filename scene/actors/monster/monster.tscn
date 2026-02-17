@@ -36,7 +36,7 @@ visible = false
 shape = SubResource("SphereShape3D_22xf5")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=677366057]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.016, 1, -0.045)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.016, 0.85528564, -0.045)
 shape = SubResource("CapsuleShape3D_q5x8i")
 
 [node name="monster" parent="." unique_id=1357460165 instance=ExtResource("2_q5x8i")]

@@ -15,6 +15,7 @@
 [ext_resource type="Animation" uid="uid://pp315u61msi6" path="res://animations/slowRun.res" id="9_m21xu"]
 [ext_resource type="Animation" uid="uid://ps8yvbosree2" path="res://animations/player/runJump2.res" id="10_7d5ep"]
 [ext_resource type="Animation" uid="uid://bf4kyxfs20k8i" path="res://animations/player/runJump3.res" id="11_h48p6"]
+[ext_resource type="PackedScene" uid="uid://bqxl7ff20edji" path="res://scene/ui/hud.tscn" id="16_ojb3f"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hjaqi"]
 radius = 0.22070313
@@ -123,5 +124,7 @@ current = true
 
 [node name="RayCast3D" type="RayCast3D" parent="CameraPivot3d/SpringArm3D/Camera3D" unique_id=2011540895]
 target_position = Vector3(0, 0, -4.075)
+
+[node name="HUD" parent="." unique_id=2046142792 instance=ExtResource("16_ojb3f")]
 
 [editable path="MainCharacter"]

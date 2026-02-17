@@ -26,7 +26,7 @@ extends CharacterBody3D
 @onready var spring_arm: SpringArm3D = $CameraPivot3d/SpringArm3D
 @onready var animation: AnimationPlayer = $MainCharacter/AnimationPlayer
 @onready var interaction_ray: RayCast3D = $CameraPivot3d/SpringArm3D/Camera3D/RayCast3D
-
+@onready var health_bar: ProgressBar = $HUD/ProgressBar
 # ============================================================================
 # CONSTANTS & VARIABLES
 # ============================================================================
@@ -40,6 +40,7 @@ var combat_exit_time: float = 0.0
 var current_animation: String = ""
 var jump_timer: float = -1.0
 var is_jumping: bool = false # ← NEW: Track if we're in a jump
+var health: int = 100
 
 # ============================================================================
 # INITIALIZATION
@@ -91,6 +92,8 @@ func _do_combat(anim_name: String) -> void:
 	is_attacking = true
 	combat_exit_time = 0.0 # Reset stance timer
 	_play_anim(anim_name)
+	_on_health_changed(health - 10)
+
 
 func _try_interact() -> void:
 	if not interaction_ray.is_colliding():
@@ -102,6 +105,7 @@ func _try_interact() -> void:
 func _on_animation_finished(anim_name: String) -> void:
 	if anim_name in combat_moves:
 		is_attacking = false
+		current_animation = "" # ← Clear so _update_animations can take over
 		# Set cooldown timer (when to exit combat stance)
 		combat_exit_time = Time.get_ticks_msec() + (combat_cooldown_duration * 1000.0)
 	elif anim_name == "femaleRunJump" or anim_name == "jumpPack":
@@ -111,6 +115,10 @@ func _on_animation_finished(anim_name: String) -> void:
 		# Snap quickly back to run if still sprinting
 		if anim_name == "femaleRunJump" and Input.is_action_pressed("sprint"):
 			_play_anim("femaleRun", 0.1)
+
+func _on_health_changed(new_health: int) -> void:
+	health = new_health
+	health_bar.value = health
 
 # ============================================================================
 # PHYSICS & MOVEMENT

@@ -1,10 +1,41 @@
 [gd_scene format=3 uid="uid://bqxl7ff20edji"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3h0bj"]
+bg_color = Color(0.9796365, 0.17603585, 0, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 1, 1)
+expand_margin_left = 3.0
+expand_margin_top = 3.0
+expand_margin_right = 3.0
+expand_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7n5te"]
+bg_color = Color(0, 0.7742011, 0.25465536, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 1, 1)
+border_blend = true
+expand_margin_left = 3.0
+expand_margin_top = 3.0
+expand_margin_right = 3.0
+expand_margin_bottom = 3.0
+
 [node name="HUD" type="CanvasLayer" unique_id=2046142792]
 
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1530123423]
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="ProgressBar" type="ProgressBar" parent="." unique_id=1037190792]
+offset_left = 23.0
+offset_top = 24.0
+offset_right = 317.0
+offset_bottom = 53.0
+theme_override_styles/background = SubResource("StyleBoxFlat_3h0bj")
+theme_override_styles/fill = SubResource("StyleBoxFlat_7n5te")
+value = 100.0
 
-[node name="TextureProgressBar" type="TextureProgressBar" parent="MarginContainer" unique_id=43578570]
-layout_mode = 2
+[node name="Timer" type="Timer" parent="." unique_id=688430808]
+wait_time = 0.1
+one_shot = true
