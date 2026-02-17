@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://bqxl7ff20edji"]
+
+[node name="HUD" type="CanvasLayer" unique_id=2046142792]
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1530123423]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="MarginContainer" unique_id=43578570]
+layout_mode = 2
