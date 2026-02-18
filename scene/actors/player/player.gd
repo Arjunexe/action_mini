@@ -27,6 +27,8 @@ extends CharacterBody3D
 @onready var animation: AnimationPlayer = $MainCharacter/AnimationPlayer
 @onready var interaction_ray: RayCast3D = $CameraPivot3d/SpringArm3D/Camera3D/RayCast3D
 @onready var health_bar: ProgressBar = $HUD/ProgressBar
+@onready var hitbox_l: Area3D = $MainCharacter/Skeleton3D/HandAttachment_L/HitBox_L
+@onready var hitbox_r: Area3D = $MainCharacter/Skeleton3D/HandAttachment_R/HitBox_R
 # ============================================================================
 # CONSTANTS & VARIABLES
 # ============================================================================
@@ -54,6 +56,12 @@ func _ready() -> void:
 	# Connect animation finished signal
 	if animation:
 		animation.animation_finished.connect(_on_animation_finished)
+	# Connect hitbox signals
+	hitbox_l.area_entered.connect(_on_hitbox_hit)
+	hitbox_r.area_entered.connect(_on_hitbox_hit)
+	# Disable hitboxes by default — only enable during attacks
+	hitbox_l.monitoring = false
+	hitbox_r.monitoring = false
 
 # ============================================================================
 # INPUT HANDLING
@@ -91,8 +99,9 @@ func _handle_camera_rotation(event: InputEventMouseMotion) -> void:
 func _do_combat(anim_name: String) -> void:
 	is_attacking = true
 	combat_exit_time = 0.0 # Reset stance timer
+	hitbox_l.monitoring = true
+	hitbox_r.monitoring = true
 	_play_anim(anim_name)
-	_on_health_changed(health - 10)
 
 
 func _try_interact() -> void:
@@ -106,6 +115,8 @@ func _on_animation_finished(anim_name: String) -> void:
 	if anim_name in combat_moves:
 		is_attacking = false
 		current_animation = "" # ← Clear so _update_animations can take over
+		hitbox_l.monitoring = false
+		hitbox_r.monitoring = false
 		# Set cooldown timer (when to exit combat stance)
 		combat_exit_time = Time.get_ticks_msec() + (combat_cooldown_duration * 1000.0)
 	elif anim_name == "femaleRunJump" or anim_name == "jumpPack":
@@ -119,6 +130,17 @@ func _on_animation_finished(anim_name: String) -> void:
 func _on_health_changed(new_health: int) -> void:
 	health = new_health
 	health_bar.value = health
+
+func _on_hitbox_hit(area: Area3D) -> void:
+	# area is the hurtbox we hit — get the scene root (Player/Monster)
+	var target: Node3D = area.get_owner()
+	if target and target.has_method("take_damage"):
+		target.take_damage(25)
+
+func take_damage(amount: int) -> void:
+	_on_health_changed(health - amount)
+	if health <= 0:
+		print("Player died!")
 
 # ============================================================================
 # PHYSICS & MOVEMENT
@@ -152,6 +174,12 @@ func _handle_jump(_delta: float) -> void:
 	# Only reset after we've been airborne AND landed
 	if is_jumping and is_on_floor() and has_left_ground:
 		is_jumping = false
+	
+	# Safety: if marked as jumping but the jump animation stopped (e.g. blocked by collision), reset
+	if is_jumping and is_on_floor() and animation.current_animation != "jumpPack" and animation.current_animation != "femaleRunJump":
+		is_jumping = false
+		has_left_ground = false
+		current_animation = ""
 
 func apply_jump_force() -> void:
 	print("JUMP FORCE APPLIED!") # ← Add this debug line
@@ -218,8 +246,8 @@ func _update_animations() -> void:
 		_play_anim("justStanding")
 
 func _play_anim(anim_name: String, blend: float = 0.4) -> void:
-	# Only play if different from current animation (optimization)
-	if current_animation == anim_name:
+	# Only skip if same animation AND it's still actually playing
+	if current_animation == anim_name and animation.is_playing():
 		return
 	
 	if animation and animation.has_animation(anim_name):

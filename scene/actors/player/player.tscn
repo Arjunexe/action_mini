@@ -21,6 +21,12 @@
 radius = 0.22070313
 height = 1.6415405
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_ojb3f"]
+radius = 0.04455555
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_fdk33"]
+radius = 0.044253636
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_7q8qc"]
 _data = {
 &"combatIdle": ExtResource("3_vgwja"),
@@ -37,6 +43,10 @@ _data = {
 &"slowRun": ExtResource("9_m21xu"),
 &"walking": ExtResource("3_gk0xs")
 }
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ojb3f"]
+radius = 0.18945313
+height = 1.5666504
 
 [node name="Player" type="CharacterBody3D" unique_id=1574955470 groups=["player"]]
 script = ExtResource("1_s6lp3")
@@ -103,6 +113,34 @@ bones/61/rotation = Quaternion(-0.27603415, -0.0076562627, -0.04326786, 0.960142
 bones/62/rotation = Quaternion(0.54351103, 0.008990446, 0.05931387, 0.83725554)
 bones/63/rotation = Quaternion(0.30041602, 0.10276726, 0.021531526, 0.9480114)
 
+[node name="HandAttachment_L" type="BoneAttachment3D" parent="MainCharacter/Skeleton3D" index="0" unique_id=1612844895]
+transform = Transform3D(0.11965895, -0.5488179, -0.82733357, -0.4998073, 0.6867222, -0.5278305, 0.85783106, 0.47666708, -0.19213067, 0.068209946, 1.2673632, 0.40285403)
+bone_name = "mixamorig_LeftHand"
+bone_idx = 10
+
+[node name="HitBox_L" type="Area3D" parent="MainCharacter/Skeleton3D/HandAttachment_L" unique_id=738868618]
+collision_layer = 4
+collision_mask = 8
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainCharacter/Skeleton3D/HandAttachment_L/HitBox_L" unique_id=811609009]
+transform = Transform3D(1, 1.1920929e-07, -1.0430813e-07, -2.9802322e-08, 1.0000002, -5.2154064e-08, -1.4901161e-08, 1.1734664e-06, 1, -0.009729385, 0.018044114, 0.011041641)
+shape = SubResource("SphereShape3D_ojb3f")
+
+[node name="HandAttachment_R" type="BoneAttachment3D" parent="MainCharacter/Skeleton3D" index="2" unique_id=424572011]
+transform = Transform3D(0.38993806, -0.034492105, 0.920195, 0.6191866, 0.7494768, -0.23429108, -0.6815835, 0.6611313, 0.3136066, -0.16588978, 1.2105738, 0.29271168)
+bone_name = "mixamorig_RightHand"
+bone_idx = 34
+
+[node name="HitBox_R" type="Area3D" parent="MainCharacter/Skeleton3D/HandAttachment_R" unique_id=1055996175]
+collision_layer = 4
+collision_mask = 8
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainCharacter/Skeleton3D/HandAttachment_R/HitBox_R" unique_id=174881648]
+transform = Transform3D(0.99999994, 2.9802322e-08, -1.4901161e-08, 0, 0.9999998, 2.9802322e-08, -5.9604645e-08, -2.9802322e-08, 1, -0.0029307902, 0.019439578, 0.00030314922)
+shape = SubResource("SphereShape3D_fdk33")
+
 [node name="AnimationPlayer" parent="MainCharacter" index="1" unique_id=186768685]
 libraries/ = SubResource("AnimationLibrary_7q8qc")
 
@@ -111,6 +149,15 @@ transform = Transform3D(-0.99989635, 0, 0.014398467, 0, 0.9999999, 0, -0.0143984
 visible = false
 light_energy = 16.0
 spot_range = 9.695078
+
+[node name="HurtBox" type="Area3D" parent="MainCharacter" unique_id=1632079743]
+collision_layer = 2
+collision_mask = 0
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainCharacter/HurtBox" unique_id=287234574]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7904053, 0)
+shape = SubResource("CapsuleShape3D_ojb3f")
 
 [node name="CameraPivot3d" type="Node3D" parent="." unique_id=771250901]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.312, 0)
@@ -128,3 +175,4 @@ target_position = Vector3(0, 0, -4.075)
 [node name="HUD" parent="." unique_id=2046142792 instance=ExtResource("16_ojb3f")]
 
 [editable path="MainCharacter"]
+[editable path="HUD"]

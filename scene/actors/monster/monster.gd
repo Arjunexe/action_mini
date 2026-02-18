@@ -9,12 +9,16 @@ extends CharacterBody3D
 @export var detection_radius: float = 30.0
 @export var sight_range: float = 25.0
 @export var chase_giveup_time: float = 3.0
+@export var attack_range: float = 2.5
 
 @onready var nav_agent: NavigationAgent3D = $NavigationAgent3D
 @onready var anim_player: AnimationPlayer = $monster/AnimationPlayer
 @onready var detection_area: Area3D = $DetectionArea
+@onready var hitbox_l: Area3D = $monster/Skeleton3D/HandAttachment_L/HitBox_L
+@onready var hitbox_r: Area3D = $monster/Skeleton3D/HandAttachment_R/HitBox_R
+@onready var health_bar: ProgressBar = $Node3D/Sprite3D/SubViewport/ProgressBar
 
-enum State {WANDER, ROAR, CHASE, CONFUSED}
+enum State {WANDER, ROAR, CHASE, ATTACK, CONFUSED, DEAD}
 
 const GRAVITY: float = 9.8
 var state: State = State.WANDER
@@ -25,6 +29,7 @@ var has_roared: bool = false
 var wander_direction: Vector3 = Vector3.ZERO
 var wander_change_timer: float = 0.0
 var _last_pos: Vector3 = Vector3.ZERO
+var health: int = 100
 
 
 func _ready() -> void:
@@ -53,10 +58,21 @@ func _ready() -> void:
 	if not anim_player.animation_finished.is_connected(_on_animation_finished):
 		anim_player.animation_finished.connect(_on_animation_finished)
 	
+	# Connect hitbox signals
+	hitbox_l.area_entered.connect(_on_hitbox_hit)
+	hitbox_r.area_entered.connect(_on_hitbox_hit)
+	# Disable hitboxes by default — only enable during attacks
+	hitbox_l.monitoring = false
+	hitbox_r.monitoring = false
+	
 	_pick_wander_direction()
 
 
 func _physics_process(delta: float) -> void:
+	# Don't do anything if dead
+	if state == State.DEAD:
+		return
+	
 	# Nav safety
 	if NavigationServer3D.map_get_iteration_id(get_world_3d().get_navigation_map()) == 0:
 		return
@@ -84,6 +100,17 @@ func _physics_process(delta: float) -> void:
 		velocity.x = 0.0
 		velocity.z = 0.0
 		move_and_slide()
+		return
+	
+	# During ATTACK: stop moving, face the player
+	if state == State.ATTACK:
+		velocity.x = 0.0
+		velocity.z = 0.0
+		move_and_slide()
+		if player:
+			var look_pos: Vector3 = player.global_position
+			look_pos.y = global_position.y
+			look_at(look_pos, Vector3.UP)
 		return
 	
 	# Move
@@ -134,7 +161,13 @@ func _handle_state_transitions(delta: float) -> void:
 	# ROAR state waits for animation_finished signal
 	elif state == State.CHASE:
 		var dist: float = global_position.distance_to(player.global_position)
-		if dist > sight_range:
+		if dist <= attack_range:
+			# Close enough to attack!
+			state = State.ATTACK
+			hitbox_l.monitoring = true
+			hitbox_r.monitoring = true
+			anim_player.play("mutantSwipe")
+		elif dist > sight_range:
 			los_lost_time += delta
 			if los_lost_time > chase_giveup_time:
 				state = State.CONFUSED
@@ -146,6 +179,9 @@ func _handle_state_transitions(delta: float) -> void:
 					state = State.WANDER
 		else:
 			los_lost_time = 0.0
+	elif state == State.ATTACK:
+		# Don't interrupt the swipe — let it finish (handled in _on_animation_finished)
+		pass
 	elif state == State.CONFUSED:
 		if player_detected:
 			if not has_roared and anim_player.has_animation("mutantRoar"):
@@ -174,6 +210,24 @@ func _on_animation_finished(anim_name: String) -> void:
 	elif anim_name == "confused" and state == State.CONFUSED:
 		state = State.WANDER
 		_pick_wander_direction()
+	elif anim_name == "mutantSwipe" and state == State.ATTACK:
+		# Swipe finished — check if player is still in range
+		var dist: float = global_position.distance_to(player.global_position)
+		if dist > attack_range * 1.5:
+			# Player moved away, go back to chasing
+			hitbox_l.monitoring = false
+			hitbox_r.monitoring = false
+			state = State.CHASE
+			los_lost_time = 0.0
+		else:
+			# Still in range — swipe again
+			hitbox_l.monitoring = false
+			hitbox_r.monitoring = false
+			hitbox_l.monitoring = true
+			hitbox_r.monitoring = true
+			anim_player.play("mutantSwipe", -1, 1.3) # 1.3x speed
+	elif anim_name == "mutantDying" and state == State.DEAD:
+		queue_free()
 
 
 func _update_animation_and_rotation() -> void:
@@ -202,3 +256,22 @@ func _update_animation_and_rotation() -> void:
 func _pick_wander_direction() -> void:
 	wander_direction = Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized()
 	wander_change_timer = randf_range(3.0, 5.0)
+
+
+func _on_hitbox_hit(area: Area3D) -> void:
+	# area is the hurtbox we hit — get the scene root (Player/Monster)
+	var target: Node3D = area.get_owner()
+	if target and target.has_method("take_damage"):
+		target.take_damage(5)
+
+
+func take_damage(amount: int) -> void:
+	if state == State.DEAD:
+		return
+	health -= amount
+	health_bar.value = health
+	if health <= 0:
+		state = State.DEAD
+		hitbox_l.monitoring = false
+		hitbox_r.monitoring = false
+		anim_player.play("mutantDying")

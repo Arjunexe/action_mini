@@ -7,6 +7,8 @@
 [ext_resource type="Animation" uid="uid://pp315u61msi6" path="res://animations/slowRun.res" id="3_utwfm"]
 [ext_resource type="Animation" uid="uid://b0adc82l5waf4" path="res://animations/mutantRoar.res" id="3_wj5yr"]
 [ext_resource type="Animation" uid="uid://c01o7mjdbykcx" path="res://animations/monsterRun.res" id="4_uqoaw"]
+[ext_resource type="Animation" uid="uid://d0sf1g48gcmyf" path="res://animations/monster/mutantDying.res" id="5_srcid"]
+[ext_resource type="Animation" uid="uid://d0wl577lm7lna" path="res://animations/monster/mutantSwipe.res" id="6_rdyi5"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_22xf5"]
 radius = 1.4145331
@@ -15,18 +17,40 @@ radius = 1.4145331
 radius = 0.34375
 height = 1.7664261
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_uqoaw"]
+radius = 0.14136271
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_rdyi5"]
+radius = 0.12963606
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ox1q8"]
 _data = {
 &"confused": ExtResource("3_bug3k"),
 &"monsterRun": ExtResource("4_uqoaw"),
+&"mutantDying": ExtResource("5_srcid"),
 &"mutantRoar": ExtResource("3_wj5yr"),
+&"mutantSwipe": ExtResource("6_rdyi5"),
 &"mutantWalking": ExtResource("3_ox1q8"),
 &"slowRun": ExtResource("3_utwfm")
 }
 
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uqoaw"]
+radius = 0.6538086
+height = 2.0009766
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_srcid"]
+viewport_path = NodePath("Node3D/Sprite3D/SubViewport")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_16p48"]
+bg_color = Color(0.7490196, 0.19215687, 0.101960786, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s4ul7"]
+bg_color = Color(0, 0.70980394, 0.14901961, 1)
+
 [node name="Monster" type="CharacterBody3D" unique_id=494537604]
 script = ExtResource("1_q5x8i")
 detection_radius = 10.0
+attack_range = 1.6
 
 [node name="DetectionArea" type="Area3D" parent="." unique_id=1683028985]
 
@@ -37,6 +61,7 @@ shape = SubResource("SphereShape3D_22xf5")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=677366057]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.016, 0.85528564, -0.045)
+visible = false
 shape = SubResource("CapsuleShape3D_q5x8i")
 
 [node name="monster" parent="." unique_id=1357460165 instance=ExtResource("2_q5x8i")]
@@ -91,8 +116,45 @@ bones/57/rotation = Quaternion(-0.32168508, 0.057640754, -0.016933914, 0.9449389
 bones/58/rotation = Quaternion(0.63040495, 0.14982702, -0.08189236, 0.7572551)
 bones/59/rotation = Quaternion(0.25318208, 0.08602121, 0.021668868, 0.96334296)
 
+[node name="HandAttachment_L" type="BoneAttachment3D" parent="monster/Skeleton3D" index="1" unique_id=621189187]
+transform = Transform3D(0.21048757, 0.041669823, -0.976708, -0.27447224, -0.95638597, -0.09995359, -0.93827504, 0.28911826, -0.1898702, 0.37968153, 0.84519625, 0.02489867)
+bone_name = "mixamorig_LeftHand"
+bone_idx = 14
+
+[node name="HitBox_L" type="Area3D" parent="monster/Skeleton3D/HandAttachment_L" unique_id=136732586]
+collision_layer = 16
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="monster/Skeleton3D/HandAttachment_L/HitBox_L" unique_id=573073217]
+transform = Transform3D(1, 0, 1.4901161e-08, 2.9802322e-08, 1, 3.7252903e-09, 0, 0, 1, 0.008292824, 0.0016416311, -0.03848058)
+shape = SubResource("SphereShape3D_uqoaw")
+
+[node name="HandAttachment_R" type="BoneAttachment3D" parent="monster/Skeleton3D" index="2" unique_id=100841968]
+transform = Transform3D(0.3229623, -0.11104335, 0.93987495, 0.31173006, -0.92519426, -0.21642628, 0.8935994, 0.36288458, -0.2641874, -0.3696837, 0.8486272, 0.02082476)
+bone_name = "mixamorig_RightHand"
+bone_idx = 34
+
+[node name="HitBox_R" type="Area3D" parent="monster/Skeleton3D/HandAttachment_R" unique_id=1728375550]
+collision_layer = 16
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="monster/Skeleton3D/HandAttachment_R/HitBox_R" unique_id=905270435]
+transform = Transform3D(1, 0, 1.4901161e-08, 2.9802322e-08, 1, -7.450581e-09, 0, 0, 1, -0.009765923, -0.013495922, -0.028005362)
+shape = SubResource("SphereShape3D_rdyi5")
+
 [node name="AnimationPlayer" parent="monster" index="1" unique_id=101642766]
 libraries/ = SubResource("AnimationLibrary_ox1q8")
+
+[node name="HurtBox" type="Area3D" parent="monster" unique_id=1354047206]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="monster/HurtBox" unique_id=368574417]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.9591007e-09, 0.939087, 0.056725502)
+shape = SubResource("CapsuleShape3D_uqoaw")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=1227616958]
 path_desired_distance = 0.5
@@ -105,5 +167,26 @@ target_position = Vector3(0, 1.5, 0)
 
 [node name="LOSCheckTimer" type="Timer" parent="." unique_id=238432863]
 wait_time = 0.3
+
+[node name="Node3D" type="Node3D" parent="." unique_id=228352255]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+
+[node name="Sprite3D" type="Sprite3D" parent="Node3D" unique_id=1245322822]
+pixel_size = 0.004
+billboard = 1
+render_priority = 1
+texture = SubResource("ViewportTexture_srcid")
+
+[node name="SubViewport" type="SubViewport" parent="Node3D/Sprite3D" unique_id=1812835168]
+transparent_bg = true
+size = Vector2i(200, 24)
+render_target_update_mode = 4
+
+[node name="ProgressBar" type="ProgressBar" parent="Node3D/Sprite3D/SubViewport" unique_id=1659112363]
+offset_right = 200.0
+offset_bottom = 25.0
+theme_override_styles/background = SubResource("StyleBoxFlat_16p48")
+theme_override_styles/fill = SubResource("StyleBoxFlat_s4ul7")
+value = 100.0
 
 [editable path="monster"]

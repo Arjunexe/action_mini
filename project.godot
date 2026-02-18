@@ -122,6 +122,13 @@ interact={
 ]
 }
 
+[layer_names]
+
+3d_physics/layer_2="HurtBox"
+3d_physics/layer_3="HitBox"
+3d_physics/layer_4="EnemyHurtBox"
+3d_physics/layer_5="EnemyHitBox"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
