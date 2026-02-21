@@ -42,6 +42,7 @@ var combat_exit_time: float = 0.0
 var current_animation: String = ""
 var jump_timer: float = -1.0
 var is_jumping: bool = false # ← NEW: Track if we're in a jump
+var is_dead: bool = false
 var health: int = 100
 
 # ============================================================================
@@ -139,13 +140,21 @@ func _on_hitbox_hit(area: Area3D) -> void:
 
 func take_damage(amount: int) -> void:
 	_on_health_changed(health - amount)
-	if health <= 0:
+	if health <= 0 and not is_dead:
+		is_dead = true
 		print("Player died!")
+		_play_anim("dyingPlayer", 0.0)
+		# Wait 3 seconds, then restart
+		var tween: Tween = create_tween()
+		tween.tween_interval(3)
+		tween.tween_callback(get_tree().reload_current_scene)
 
 # ============================================================================
 # PHYSICS & MOVEMENT
 # ============================================================================
 func _physics_process(delta: float) -> void:
+	if is_dead:
+		return
 	_apply_gravity(delta)
 	_handle_jump(delta) # ← Now takes delta
 	_handle_movement(delta)
@@ -217,6 +226,9 @@ func _handle_movement(delta: float) -> void:
 # ANIMATION SYSTEM
 # ============================================================================
 func _update_animations() -> void:
+	# Don't override death animation
+	if is_dead:
+		return
 	# Don't override combat animations
 	if is_attacking:
 		return

@@ -84,7 +84,7 @@ data = PackedVector3Array(-728.5506, 85.1329, 107.8041, -728.5827, 50.754097, 10
 [sub_resource type="BoxShape3D" id="BoxShape3D_g0i7g"]
 size = Vector3(121.19188, 197.23996, 18.541286)
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_t6jhs"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_58eqr"]
 viewport_path = NodePath("Node3D/Sprite3D/SubViewport")
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_ckxcn"]
@@ -218,7 +218,7 @@ transform = Transform3D(-0.88388807, 0, -0.46769845, 0, 1, 0, 0.46769845, 0, -0.
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.01629448, 1.3443797, 0.14441681)
 
 [node name="Sprite3D" parent="Monster/Node3D" parent_id_path=PackedInt32Array(494537604, 228352255) index="0" unique_id=1245322822]
-texture = SubResource("ViewportTexture_t6jhs")
+texture = SubResource("ViewportTexture_58eqr")
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=1555416232 groups=["nav_source"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -252.2937, 2.7378197, -112.43384)

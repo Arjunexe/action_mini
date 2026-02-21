@@ -18,10 +18,10 @@ radius = 0.34375
 height = 1.7664261
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_uqoaw"]
-radius = 0.14136271
+radius = 0.21587412
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_rdyi5"]
-radius = 0.12963606
+radius = 0.19157802
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ox1q8"]
 _data = {
@@ -127,7 +127,7 @@ collision_mask = 2
 monitorable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="monster/Skeleton3D/HandAttachment_L/HitBox_L" unique_id=573073217]
-transform = Transform3D(1, 0, 1.4901161e-08, 2.9802322e-08, 1, 3.7252903e-09, 0, 0, 1, 0.008292824, 0.0016416311, -0.03848058)
+transform = Transform3D(1, 0, 2.9802322e-08, 5.9604645e-08, 1, 7.450581e-09, 0, 0, 1, 0.033681154, 0.09010601, -0.029235005)
 shape = SubResource("SphereShape3D_uqoaw")
 
 [node name="HandAttachment_R" type="BoneAttachment3D" parent="monster/Skeleton3D" index="2" unique_id=100841968]
@@ -141,7 +141,7 @@ collision_mask = 2
 monitorable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="monster/Skeleton3D/HandAttachment_R/HitBox_R" unique_id=905270435]
-transform = Transform3D(1, 0, 1.4901161e-08, 2.9802322e-08, 1, -7.450581e-09, 0, 0, 1, -0.009765923, -0.013495922, -0.028005362)
+transform = Transform3D(1, 0, 2.9802322e-08, 2.9802322e-08, 1, -2.2351742e-08, 0, 0, 1, -0.043661565, 0.08710408, -0.004472494)
 shape = SubResource("SphereShape3D_rdyi5")
 
 [node name="AnimationPlayer" parent="monster" index="1" unique_id=101642766]
