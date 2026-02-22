@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://2yyfy0u3idx5"]
 
 [ext_resource type="PackedScene" uid="uid://dfu2jmsy7b7g8" path="res://scene/actors/player/player.tscn" id="1_mcmpp"]
+[ext_resource type="Script" uid="uid://opniy22g5j5n" path="res://scene/world/world.gd" id="1_srnbc"]
 [ext_resource type="Script" uid="uid://bbb0gwlf044vw" path="res://addons/proton_scatter/src/scatter.gd" id="10_g0i7g"]
 [ext_resource type="Script" uid="uid://cfh04a38np81" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="11_ckxcn"]
 [ext_resource type="Script" uid="uid://cbcxo1vaas45d" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="12_t6jhs"]
@@ -40,34 +41,34 @@ emission_enabled = true
 emission = Color(1, 1, 1, 1)
 emission_energy_multiplier = 16.0
 
-[sub_resource type="Resource" id="Resource_58eqr"]
+[sub_resource type="Resource" id="Resource_srnbc"]
 script = ExtResource("13_cm2xv")
 amount = 1000
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_srnbc"]
+[sub_resource type="Resource" id="Resource_4akyk"]
 script = ExtResource("14_6lidv")
 position = Vector3(0.15, 0.15, 0.15)
 scale = Vector3(5, 5, 5)
 reference_frame = 2
 
-[sub_resource type="Resource" id="Resource_4akyk"]
+[sub_resource type="Resource" id="Resource_g0i7g"]
 script = ExtResource("15_wc0en")
 offset_step = 0.2
 consecutive_step_multiplier = 0.75
 use_computeshader = false
 restrict_height = true
 
-[sub_resource type="Resource" id="Resource_g0i7g"]
+[sub_resource type="Resource" id="Resource_ckxcn"]
 script = ExtResource("16_b43sk")
 ray_length = 5.0
 ray_offset = 5.0
 remove_points_on_miss = false
 
-[sub_resource type="Resource" id="Resource_ckxcn"]
+[sub_resource type="Resource" id="Resource_cm2xv"]
 script = ExtResource("11_ckxcn")
-stack = Array[ExtResource("12_t6jhs")]([SubResource("Resource_58eqr"), SubResource("Resource_srnbc"), SubResource("Resource_4akyk"), SubResource("Resource_g0i7g")])
+stack = Array[ExtResource("12_t6jhs")]([SubResource("Resource_srnbc"), SubResource("Resource_4akyk"), SubResource("Resource_g0i7g"), SubResource("Resource_ckxcn")])
 
 [sub_resource type="Resource" id="Resource_g8bsm"]
 script = ExtResource("19_6hm40")
@@ -84,7 +85,7 @@ data = PackedVector3Array(-728.5506, 85.1329, 107.8041, -728.5827, 50.754097, 10
 [sub_resource type="BoxShape3D" id="BoxShape3D_g0i7g"]
 size = Vector3(121.19188, 197.23996, 18.541286)
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_58eqr"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_6lidv"]
 viewport_path = NodePath("Node3D/Sprite3D/SubViewport")
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_ckxcn"]
@@ -136,6 +137,8 @@ _shader_parameters = {
 world_background = 0
 
 [node name="World" type="Node3D" unique_id=663070568]
+script = ExtResource("1_srnbc")
+respawn_delay = 2.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=648523458]
 environment = SubResource("Environment_se62r")
@@ -160,7 +163,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6216278, -0.2662506, -156.9
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.202295, 6.627143, -21.224537)
 visible = false
 script = ExtResource("10_g0i7g")
-modifier_stack = SubResource("Resource_ckxcn")
+modifier_stack = SubResource("Resource_cm2xv")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(15.03, 15, 15)
 metadata/_custom_type_script = "uid://bbb0gwlf044vw"
@@ -212,13 +215,13 @@ transform = Transform3D(1, 3.838118e-22, 0, 0, 1, -1.1858461e-20, 0, -3.930233e-
 shape = SubResource("BoxShape3D_g0i7g")
 
 [node name="Monster" parent="." unique_id=494537604 instance=ExtResource("20_t6jhs")]
-transform = Transform3D(-0.88388807, 0, -0.46769845, 0, 1, 0, 0.46769845, 0, -0.88388807, 12.489126, 0.005756378, -153.01826)
+transform = Transform3D(-0.88388807, 0, -0.46769845, 0, 1, 0, 0.46769845, 0, -0.88388807, 8.0330715, 0.0004310608, -153.01826)
 
 [node name="CollisionShape3D" parent="Monster" index="1" unique_id=677366057]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.01629448, 1.3443797, 0.14441681)
 
 [node name="Sprite3D" parent="Monster/Node3D" parent_id_path=PackedInt32Array(494537604, 228352255) index="0" unique_id=1245322822]
-texture = SubResource("ViewportTexture_58eqr")
+texture = SubResource("ViewportTexture_6lidv")
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=1555416232 groups=["nav_source"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -252.2937, 2.7378197, -112.43384)

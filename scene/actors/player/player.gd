@@ -17,6 +17,7 @@ extends CharacterBody3D
 
 @export_group("Combat")
 @export var combat_cooldown_duration: float = 0.5
+@export var attack_damage: int = 5
 
 # ============================================================================
 # NODE REFERENCES
@@ -77,9 +78,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	
 	# Combat inputs (only when not already attacking)
 	if not is_attacking:
-		if event.is_action_pressed("kick"):
+		if event.is_action_pressed("kick") and not is_jumping:
 			_do_combat("kick")
-		elif event.is_action_pressed("punch"):
+		elif event.is_action_pressed("punch") and not is_jumping:
 			_do_combat("punch")
 
 func _handle_camera_rotation(event: InputEventMouseMotion) -> void:
@@ -136,9 +137,9 @@ func _on_hitbox_hit(area: Area3D) -> void:
 	# area is the hurtbox we hit — get the scene root (Player/Monster)
 	var target: Node3D = area.get_owner()
 	if target and target.has_method("take_damage"):
-		target.take_damage(25)
+		target.take_damage(attack_damage)
 
-func take_damage(amount: int) -> void:
+func take_damage(amount: int) -> bool:
 	_on_health_changed(health - amount)
 	if health <= 0 and not is_dead:
 		is_dead = true
@@ -148,6 +149,8 @@ func take_damage(amount: int) -> void:
 		var tween: Tween = create_tween()
 		tween.tween_interval(3)
 		tween.tween_callback(get_tree().reload_current_scene)
+		return true
+	return false
 
 # ============================================================================
 # PHYSICS & MOVEMENT
@@ -168,7 +171,7 @@ func _apply_gravity(delta: float) -> void:
 
 func _handle_jump(_delta: float) -> void:
 	# Start jump
-	if Input.is_action_just_pressed("jump") and is_on_floor() and not is_jumping:
+	if Input.is_action_just_pressed("jump") and is_on_floor() and not is_jumping and not is_attacking:
 		if Input.is_action_pressed("sprint"):
 			_play_anim("femaleRunJump", 0.0)
 		else:
@@ -195,6 +198,10 @@ func apply_jump_force() -> void:
 	velocity.y = jump_force
 
 func _handle_movement(delta: float) -> void:
+	if is_attacking:
+		velocity.x = 0
+		velocity.z = 0
+		return
 	# Get input direction
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	
@@ -237,7 +244,7 @@ func _update_animations() -> void:
 	if jump_timer > 0 or is_jumping: # ← NEW: Don't touch animation during entire jump
 		return
 	
-	# Priority 1: Airborne (shouldn't reach here during jump anymore)
+	# Priority 1: Airborne (shouldn't reach here during jump anymore) add a falling animation here
 	if not is_on_floor():
 		_play_anim("jumpPack")
 		return

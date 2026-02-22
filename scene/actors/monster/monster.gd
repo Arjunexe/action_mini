@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+signal died(death_position: Vector3)
+
 @export_group("Wander")
 @export var movement_speed: float = 2.0
 @export var wander_radius: float = 10.0
@@ -10,6 +12,7 @@ extends CharacterBody3D
 @export var sight_range: float = 25.0
 @export var chase_giveup_time: float = 3.0
 @export var attack_range: float = 2.5
+@export var attack_damage: int = 10
 
 @onready var nav_agent: NavigationAgent3D = $NavigationAgent3D
 @onready var anim_player: AnimationPlayer = $monster/AnimationPlayer
@@ -33,6 +36,7 @@ var health: int = 100
 
 
 func _ready() -> void:
+	add_to_group("monster")
 	player = get_tree().get_first_node_in_group("player") as CharacterBody3D
 	if not player:
 		push_error("Player not found! Add it to the 'player' group.")
@@ -131,8 +135,6 @@ func _physics_process(delta: float) -> void:
 	
 	velocity.x = direction.x * speed
 	velocity.z = direction.z * speed
-	if state == State.CHASE:
-		velocity.y = direction.y * speed # Climb toward player
 	
 	# Slope climbing: if we were stuck last frame, hop up
 	var horizontal_moved: float = Vector2(global_position.x - _last_pos.x, global_position.z - _last_pos.z).length()
@@ -166,7 +168,7 @@ func _handle_state_transitions(delta: float) -> void:
 			state = State.ATTACK
 			hitbox_l.monitoring = true
 			hitbox_r.monitoring = true
-			anim_player.play("mutantSwipe")
+			anim_player.play("mutantSwipe", -1, 1.3)
 		elif dist > sight_range:
 			los_lost_time += delta
 			if los_lost_time > chase_giveup_time:
@@ -225,8 +227,9 @@ func _on_animation_finished(anim_name: String) -> void:
 			hitbox_r.monitoring = false
 			hitbox_l.monitoring = true
 			hitbox_r.monitoring = true
-			anim_player.play("mutantSwipe", -1, 1.3) # 1.3x speed
+			anim_player.play("mutantSwipe", -1, 1.6) # faster follow-up
 	elif anim_name == "mutantDying" and state == State.DEAD:
+		died.emit(global_position)
 		queue_free()
 
 
@@ -262,7 +265,14 @@ func _on_hitbox_hit(area: Area3D) -> void:
 	# area is the hurtbox we hit — get the scene root (Player/Monster)
 	var target: Node3D = area.get_owner()
 	if target and target.has_method("take_damage"):
-		target.take_damage(5)
+		var dead: bool = target.take_damage(attack_damage)
+		if dead:
+			print("Player died!")
+			anim_player.play("mutantVictory")
+			# Wait 3 seconds, then restart
+			var tween: Tween = create_tween()
+			tween.tween_interval(3)
+			tween.tween_callback(get_tree().reload_current_scene)
 
 
 func take_damage(amount: int) -> void:

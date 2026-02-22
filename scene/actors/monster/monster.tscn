@@ -9,19 +9,20 @@
 [ext_resource type="Animation" uid="uid://c01o7mjdbykcx" path="res://animations/monsterRun.res" id="4_uqoaw"]
 [ext_resource type="Animation" uid="uid://d0sf1g48gcmyf" path="res://animations/monster/mutantDying.res" id="5_srcid"]
 [ext_resource type="Animation" uid="uid://d0wl577lm7lna" path="res://animations/monster/mutantSwipe.res" id="6_rdyi5"]
+[ext_resource type="Animation" uid="uid://b118fwiueb07v" path="res://animations/monster/mutantVictory.res" id="8_16p48"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_22xf5"]
 radius = 1.4145331
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_q5x8i"]
 radius = 0.34375
-height = 1.7664261
+height = 1.8713269
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_uqoaw"]
-radius = 0.21587412
+radius = 0.3297008
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_rdyi5"]
-radius = 0.19157802
+radius = 0.39949003
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ox1q8"]
 _data = {
@@ -30,6 +31,7 @@ _data = {
 &"mutantDying": ExtResource("5_srcid"),
 &"mutantRoar": ExtResource("3_wj5yr"),
 &"mutantSwipe": ExtResource("6_rdyi5"),
+&"mutantVictory": ExtResource("8_16p48"),
 &"mutantWalking": ExtResource("3_ox1q8"),
 &"slowRun": ExtResource("3_utwfm")
 }
@@ -56,12 +58,10 @@ attack_range = 1.6
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=246615337]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3854523, 0)
-visible = false
 shape = SubResource("SphereShape3D_22xf5")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=677366057]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.016, 0.85528564, -0.045)
-visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.016, 1.4093244, -0.045)
 shape = SubResource("CapsuleShape3D_q5x8i")
 
 [node name="monster" parent="." unique_id=1357460165 instance=ExtResource("2_q5x8i")]
