@@ -32,10 +32,9 @@ func reset_terrain(p_value) -> void:
 	data.update_maps(Terrain3DRegion.TYPE_MAX, true, false)
 
 
-## Recalculates min and max heights for all regions.
 func update_heights(p_value) -> void:
 	if p_value and data:
-		data.calc_height_range(true)
+		data.update_height_range()
 
 
 @export_group("Import File")

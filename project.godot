@@ -44,6 +44,7 @@ SimpleGrass="*uid://bfq0snth8sj3h"
 
 [debug]
 
+settings/stdout/print_fps=true
 gdscript/warnings/untyped_declaration=2
 
 [display]
@@ -136,6 +137,8 @@ interact={
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
 
 [shader_globals]
 
